@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+     http://www.springframework.org/schema/context/spring-context.xsd
+      http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+          http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+">
+    <!--    开启扫描：除了控制器以外，全部扫描，因为控制器交付给SpringMVC扫描-->
+    <context:component-scan base-package="com.atsu">
+<!--        排除controller注解的扫描-->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    <!--开启spring注解支持-->
+    <context:annotation-config></context:annotation-config>
+<!--    导入数据库连接信息的配置文件-->
+    <context:property-placeholder location="classpath:db.properties"></context:property-placeholder>
+    <!--    配置数据库连接池-->
+    <bean class="com.alibaba.druid.pool.DruidDataSource" id="dataSource" destroy-method="close">
+        <property name="url" value="jdbc:mysql://localhost:3306/mybatis_test?characterEncoding=utf-8&amp;serverTimezone=UTC&amp;useSSL=false&amp;allowMultiQueries=true&amp;rewriteBatchedStatements=true"></property>
+        <property name="username" value="${db.username}"></property>
+        <property name="password" value="${db.password}"></property>
+        <property name="driverClassName" value="${db.driverClassName}"></property>
+
+    </bean>
+    <!--    配置jdbc模板-->
+    <bean class="org.springframework.jdbc.core.JdbcTemplate" id="jdbcTemplate">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    <!--    事务管理器-->
+    <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="transactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+<!--    配置Mybatis的整合-->
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sessionFactoryBean">
+<!--        指定Mybatis配置文件-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+<!--        将数据源传入Mybatis-->
+        <property name="dataSource" ref="dataSource"></property>
+<!--        mapper.xml配置文件的位置-->
+        <property name="mapperLocations" value="classpath:com/atsu/mapper/EmployeeMapper.xml"></property>
+    </bean>
+
+<!--    将dao层的mapper接口扫描-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" id="mapperScannerConfigurer" >
+        <property name="basePackage" value="com/atsu/mapper"></property>
+    </bean>
+
+
+<!--    批量插入的SQLSession-->
+    <bean class="org.mybatis.spring.SqlSessionTemplate" id="sessionTemplate">
+        <constructor-arg name="sqlSessionFactory" ref="sessionFactoryBean"></constructor-arg>
+        <constructor-arg name="executorType" value="BATCH"></constructor-arg>
+
+    </bean>
+
+
+
+
+
+<!--    事务处理的增强环绕,也是可以称之为调用拦截，进行事务处理-->
+    <tx:advice id="interceptor" transaction-manager="transactionManager">
+        <tx:attributes>
+<!--            表示所有方法都是事务方法-->
+            <tx:method name="*"/>
+<!--            以get开始的所有方法,唯一-->
+            <tx:method name="get*" read-only="true"></tx:method>
+        </tx:attributes>
+    </tx:advice>
+
+
+<!--    开启注解事务，并且在xml中配置必要的事务-->
+    <aop:config>
+<!--        设置事务切入点：所有方法-->
+        <aop:pointcut id="txpoint" expression="execution(* com.atsu.service..*(..))"/>
+<!--        设置环绕增强，实际是调用事务处理的增强-->
+         <aop:advisor advice-ref="interceptor" pointcut-ref="txpoint"></aop:advisor>
+    </aop:config>
+
+
+</beans>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <!--加载属性配置文件-->
+<!--    <properties resource="db.properties"></properties>-->
+<!--    配置信息-->
+    <settings>
+        <setting name="logImpl" value="LOG4J"/>
+
+        <!--        设置全局延迟加载-->
+        <setting name="aggressiveLazyLoading" value="true"/>
+    </settings>
+<!--    &lt;!&ndash; 设置使用的日志类型 &ndash;&gt;-->
+<!--    <settings>-->
+<!--        <setting name="logImpl" value="LOG4J"/>-->
+<!--    </settings>-->
+    <!--设置别名-->
+    <typeAliases>
+        <package name="com.atsu.pojo"/>
+    </typeAliases>
+<plugins>
+    <!--设置分页插件-->
+    <plugin interceptor="com.github.pagehelper.PageInterceptor">
+<!--        设置分页插件合理化，即当页码超过总页码，返回最后一页的分页数据，小于等于0的页码，返回首页的数据-->
+        <property name="reasonable" value="true"/>
+    </plugin>
+</plugins>
+    <!-- 数据库连接环境配置,在该标签内配置多个数据库连接环境,但是只能使用其中的一个，
+    在该标签加上default=环境id即为默认的数据库连接环境-->
+    <environments default="mysqlProperties">
+
+        <environment id="mysqlProperties" >
+            <transactionManager type="JDBC"></transactionManager>
+<!--            <dataSource type="POOLED">-->
+<!--                <property name="driver" value="${db.driverClassName}"/>-->
+<!--                <property name="url" value="${db.url}"/>-->
+<!--                <property name="username" value="${db.username}"/>-->
+<!--                <property name="password" value="${db.password}"/>-->
+<!--            </dataSource>-->
+            <dataSource type="POOLED">
+                <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/mybatis_test?characterEncoding=utf-8&amp;serverTimezone=UTC&amp;useSSL=false&amp;allowMultiQueries=true&amp;rewriteBatchedStatements=true"/>
+                <property name="username" value="root"/>
+                <property name="password" value="1602820115"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+
+</configuration>

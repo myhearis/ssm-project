@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+<!--设置页面跳转逻辑-->
+<!--use-default-filters="false"禁止扫描该包下的全部，只扫描配置过的-->
+    <context:component-scan base-package="com.atsu" use-default-filters="false">
+        <!--只扫描控制器-->
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+<!--    配置视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver" id="resourceViewResolver">
+        <!--    设置解析时添加的前缀-->
+        <property name="prefix" value="/WEB-INF/templates/"></property>
+        <!--    设置解析时添加的后缀-->
+        <property name="suffix" value=".jsp"></property>
+
+    </bean>
+<!--    两个标准配置-->
+<!--    当SpringMVC不能处理的请求，交付给Tomcat服务器处理（防止导入静态资源被拦截无法响应）-->
+    <mvc:default-servlet-handler></mvc:default-servlet-handler>
+<!--    开启SpringMVC注解驱动：用于一些高级的操作-->
+    <mvc:annotation-driven></mvc:annotation-driven>
+
+</beans>
